@@ -1,4 +1,4 @@
-# Ruby on Rails Tutorial sample application
+# Rails Book Tutorial Authentication Model Chapters 8-12
 
 This is the sample application for
 [*Ruby on Rails Tutorial:
