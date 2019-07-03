@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token, :reset_token
   before_save   :downcase_email
   before_create :create_activation_digest
   before_save { self.email = email.downcase }
@@ -22,7 +22,9 @@ class User < ApplicationRecord
   def User.new_token
     SecureRandom.urlsafe_base64
   end
-
+  def password_reset_expired?
+    reset_sent_at < 2.hours.ago
+  end
   # Remembers a user in the database for use in persistent sessions.
   def remember
     self.remember_token = User.new_token
@@ -50,7 +52,15 @@ class User < ApplicationRecord
     self.activation_token  = User.new_token
     self.activation_digest = User.digest(activation_token)
   end
+  def create_reset_digest
+    self.reset_token = User.new_token
+    update_columns(reset_digest:  FILL_IN, reset_sent_at: FILL_IN)
+  end
 
+  # Sends password reset email.
+  def send_password_reset_email
+    UserMailer.password_reset(self).deliver_now
+  end
   def activate
     update_columns(activated: FILL_IN, activated_at: FILL_IN)
   end
